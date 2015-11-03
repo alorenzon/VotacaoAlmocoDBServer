@@ -1,0 +1,29 @@
+﻿@{
+    ViewBag.Title = "Colaboradores";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<head>
+    <link href="~/Content/bootstrap.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+</head>
+<div class="content">
+    <h3>Colaboradores que já estão votando</h3>
+    <table class="table table-condensed">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>                    
+            </tr>
+            </thead>
+            <tbody>
+                @foreach (var colaborador in VotacaoAlmoco.Models.Colaboradores.ColaboradoresManager.GetAll())
+                {
+                    <tr>
+                        <td>@colaborador.ID</td>
+                        <td>@colaborador.Nome</td>
+                    </tr>    
+                }            
+            </tbody>
+    </table>
+</div>

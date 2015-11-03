@@ -1,0 +1,47 @@
+﻿@{
+    ViewBag.Title = "Restaurantes";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<head>
+    <script src="~/Scripts/jquery-1.9.1.min.js"></script>
+    <link href="~/Content/bootstrap.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+
+</head>
+<div class="content">
+    <h3 class="subTitulo">Restaurantes cadastrados</h3>
+    <div class="restauranteContainer">
+        
+        @{
+            VotacaoAlmoco.Models.Restaurantes.RestauranteManager restaurantes = new VotacaoAlmoco.Models.Restaurantes.RestauranteManager();
+         }
+        @foreach (var restaurante in restaurantes.GetAll())
+        {
+            <div class="restauranteItem">
+                <div>
+                    <i class="fa fa-info-circle"></i>
+                    <span class="sub">Nome:</span>
+                    <span class="conteudo">@restaurante.Nome</span>
+                </div >
+                <div>
+                    <i class="fa fa-comment"></i>
+                    <span class="sub">Descrição:</span>
+                    <span class="conteudo">@restaurante.Descricao</span>
+                </div>
+                <div>
+                    <i class="fa fa-map-marker"></i>
+                    <span class="sub">Endereço:</span>
+                    <span class="conteudo">@restaurante.Endereco</span>
+                </div>
+                <div>
+                    <i class="fa fa-money"></i>
+                    <span class="sub">Valor aproximado (R$):</span>
+                    <span class="conteudo">@restaurante.ValorAproximado</span>
+                </div>
+            </div>
+        }            
+    </div>
+</div>

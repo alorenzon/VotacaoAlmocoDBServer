@@ -1,0 +1,132 @@
+﻿@{
+    ViewBag.Title = "Votação";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<head>
+    <script src="~/Scripts/jquery-1.9.1.min.js"></script>
+    <link href="~/Content/bootstrap.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+    <script>
+
+        var idRestaurante;
+        var nomeRestaurante;
+        var idColaborador;
+
+        $(document).on("click", ".restauranteItemVotacao", function () {
+            nomeRestaurante = $(this).data('value');
+            idRestaurante = $(this).attr('id');
+
+            var html = "<h4>Você escolheu " + nomeRestaurante + "</h5><p>Deseja enviar seu voto?</h5>";
+            $(".modal-body").html(html);
+        });
+
+        $(function () {
+            $(".dropdown-menu").on('click', 'li a', function () {
+                $(".btn-info:first-child").text($(this).text());
+                $(".btn-info:first-child").val($(this).attr('id'));
+                idColaborador = $(".btn-info:first-child").val();
+            });
+        });
+
+        //Salva o voto do colaborador
+        function ComputaVoto() {
+            $.ajax({
+                url: "/votacao/computavoto/",
+                data: { idRestaurante: idRestaurante, idColaborador: idColaborador },
+                type: "post",
+                dataType: "json",
+                error: function () {
+
+                },
+                success: function () {
+                    alert("voto computado com sucesso");
+                }
+            });
+        }
+    </script>
+</head>
+<div class="content">
+ 
+    <div class="menu_colaboradores">
+        <h3 class="subTitulo">Restaurantes candidatos</h3>
+        @{
+            string dataVotacao;
+
+            DateTime today = DateTime.Now;
+            if (today.Hour >= 11)
+            {
+                today = today.AddDays(1);
+            }
+
+            dataVotacao = today.ToString("dd/MM/yyyy");
+        }
+
+        <h4 class="subTitulo">Votação aberta para data de @dataVotacao</h4> 
+
+         <div class="btn-group">
+            <button type="button" class="btn btn-info">Selecione um colaborador</button>
+            <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="caret"></span>
+                <span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <ul class="dropdown-menu">
+                @{VotacaoAlmoco.Models.Colaboradores.ColaboradorManager colaboradores = new VotacaoAlmoco.Models.Colaboradores.ColaboradorManager();}
+                @foreach (var colaborador in colaboradores.GetAll())
+                {
+                    <li><a id="@colaborador.ID" href="#">@colaborador.Nome</a></li>
+                }
+            </ul>
+        </div>
+    </div>
+    
+    <div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Confirmação de voto</h4>
+        </div>
+        <div class="modal-body"></div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-success" onclick="ComputaVoto()">Computador voto</button>
+            <button type="button" class="btn btn-danger" data-dismiss="modal">Voltar a votação</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <div class="restauranteContainer">
+
+        @{
+            VotacaoAlmoco.Models.Restaurantes.RestauranteManager restaurantes = new VotacaoAlmoco.Models.Restaurantes.RestauranteManager();
+         }
+        @foreach (var restaurante in restaurantes.GetRestaurantesCandidatos())
+        {
+            <div id="@restaurante.ID" class="restauranteItemVotacao" data-toggle="modal" data-target="#myModal" data-value="@restaurante.Nome">
+                <div>
+                    <i class="fa fa-info-circle"></i>
+                    <span class="sub">Nome:</span>
+                    <span class="conteudo">@restaurante.Nome</span>
+                </div >
+                <div>
+                    <i class="fa fa-comment"></i>
+                    <span class="sub">Descrição:</span>
+                    <span class="conteudo">@restaurante.Descricao</span>
+                </div>
+                <div>
+                    <i class="fa fa-map-marker"></i>
+                    <span class="sub">Endereço:</span>
+                    <span class="conteudo">@restaurante.Endereco</span>
+                </div>
+                <div>
+                    <i class="fa fa-money"></i>
+                    <span class="sub">Valor aproximado (R$):</span>
+                    <span class="conteudo">@restaurante.ValorAproximado</span>
+                </div>
+            </div>
+        }           
+    </div>
+</div>
