@@ -12,6 +12,13 @@ namespace VotacaoAlmoco.Models.Votacao
 {
     public class VotacaoController : Controller
     {
+        //Struct para montar retorno JSON
+        struct StatusRetorno
+        {
+            public string status;
+            public string valor;
+        }
+        
         //Verifica data da votacao
         public DateTime DataVotacao()
         {
@@ -64,7 +71,15 @@ namespace VotacaoAlmoco.Models.Votacao
                 int votosRestantes = listaColaboradores.Count() - totalVotos;
 
                 //Verifica a diferenca de votos entre o primeiro e o segundo colocado
-                int difVotos = listaResultado[0].QuantidadeVotos - listaResultado[1].QuantidadeVotos;
+                int difVotos;
+                if (listaResultado.Count() > 1)
+                {
+                    difVotos = listaResultado[0].QuantidadeVotos - listaResultado[1].QuantidadeVotos;    
+                }
+                else
+                {
+                    difVotos = listaResultado[0].QuantidadeVotos;
+                }
 
                 //Caso a diferenca seja superior a quantidade de votos restantes, encerra votacao
                 if (difVotos > votosRestantes)
@@ -87,15 +102,10 @@ namespace VotacaoAlmoco.Models.Votacao
         // GET: /Votacao/
         public ActionResult Index()
         {
-            if (VotacaoAberta())
-            {
-                return View();    
-            }
-            else
-            {
-                return "Votação encerrada";
-            }
-            
+            //Passa variaveis para view
+            ViewData["encerrada"] = VotacaoAberta() ? false : true;
+                        
+            return View(); 
         }
 
         [HttpPost]
@@ -104,7 +114,8 @@ namespace VotacaoAlmoco.Models.Votacao
             
             if (!VotacaoAberta())
             {
-               return Json("Votação encerrada!"); 
+                ViewData["encerrada"] = true;
+                return View(); 
             }
             
             //Declara os objetos
@@ -152,5 +163,77 @@ namespace VotacaoAlmoco.Models.Votacao
             return Json("Voto computado com sucesso");
         }
 
+        [HttpGet]
+        public ActionResult ColaboradorPodeVotar(int idColaborador)
+        {
+
+            //Monta os possiveis retornos
+            StatusRetorno retornoNulo = new StatusRetorno();
+            retornoNulo.status = "PodeVotar";
+            retornoNulo.valor = "NULL";
+
+            StatusRetorno retornoSim = new StatusRetorno();
+            retornoSim.status = "PodeVotar";
+            retornoSim.valor = "SIM";
+
+            StatusRetorno retornoNao = new StatusRetorno();
+            retornoNao.status = "PodeVotar";
+            retornoNao.valor = "NAO";
+
+            StatusRetorno retorno = new StatusRetorno();
+
+            //Verifica se parametro foi passado corretamente
+            if (idColaborador > 0)
+            {
+                //Busca resultado da votacao
+                Resultado resultado = new Resultado();
+                List<Resultado> listaResultado = resultado.LerResultado(DataVotacao());
+
+                //Verifica se existe algum resultado
+                if (listaResultado == null)
+                {
+                    //Caso nao exista resultado, pode votar
+                    retorno = retornoSim;
+                }
+                else
+                {
+                    //Percorre cada resultado
+                    foreach (var resultadoItem in listaResultado)
+                    {
+                        //Verifica se existe colaboradores nessa votacao
+                        if (resultadoItem.Colaboradores == null)
+                        {
+                            //Caso nao, pode votar
+                            retorno = retornoSim;        
+                        }
+                        else
+                        {
+                            //Percorre todos os colaboradores da votacao
+                            foreach (var colaborador in resultadoItem.Colaboradores)
+                            {
+                                //Verifica se o colaborador ja havia votado
+                                if (colaborador.ID == idColaborador)
+                                {
+                                    retorno = retornoNao;
+                                }
+                                else
+                                {
+                                    retorno = retornoSim;
+                                }
+                            }
+                        }
+                    }
+                }
+                
+            }
+            else
+            {
+                //Retorna nulo caso o parametro seja invalido
+                retorno = retornoNulo;
+            }
+
+            //Retorna dados
+            return Json(retorno, JsonRequestBehavior.AllowGet);
+        }
     }
 }

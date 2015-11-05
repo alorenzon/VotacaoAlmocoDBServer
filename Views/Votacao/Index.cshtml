@@ -28,105 +28,162 @@
                 $(".btn-info:first-child").text($(this).text());
                 $(".btn-info:first-child").val($(this).attr('id'));
                 idColaborador = $(".btn-info:first-child").val();
+                ColaboradorPodeVotar(idColaborador);
+                
             });
         });
 
         //Salva o voto do colaborador
         function ComputaVoto() {
-            $.ajax({
-                url: "/votacao/computavoto/",
-                data: { idRestaurante: idRestaurante, idColaborador: idColaborador },
-                type: "post",
+
+            idColaborador = $(".btn-info:first-child").val();
+
+            $.when(ColaboradorPodeVotar(idColaborador)).done(
+                function (x) {
+                    if (x['valor'] == "NULO" || x['valor'] == "NAO") {
+                        return;
+                    }
+                    else {
+                        $.ajax({
+                            url: "/votacao/computavoto/",
+                            data: { idRestaurante: idRestaurante, idColaborador: idColaborador },
+                            type: "post",
+                            dataType: "json",
+                            error: function () {
+
+                            },
+                            success: function () {
+                                alert("Voto computado com sucesso!");
+                            }
+                        });
+                    }
+                }
+                );
+        }
+
+        //Verifica se colaborador pode votar
+        function ColaboradorPodeVotar(id) {
+            return $.ajax({
+                url: "/votacao/colaboradorpodevotar/",
+                data: {idColaborador: id},
+                type: "get",
                 dataType: "json",
                 error: function () {
-
+                    alert("Ocorreu um erro inesperado");
                 },
-                success: function () {
-                    alert("voto computado com sucesso");
+                success: function (data) {
+                    if (data['valor'] == "SIM") {
+                        idColaborador = id;
+                    }
+                    else if (data['valor'] == "NAO") {
+                        alert("Colaborador já votou!");
+                        idColaborador = "NULL";
+                        return;
+                    }
+                    else if (data['valor'] == "NULO") {
+                        alert("Colaborador inválido!");
+                        idColaborador = "NULL";
+                        return;
+                    }
                 }
             });
         }
     </script>
 </head>
 <div class="content">
- 
-    <div class="menu_colaboradores">
-        <h3 class="subTitulo">Restaurantes candidatos</h3>
         @{
-            string dataVotacao;
-
-            DateTime today = DateTime.Now;
-            if (today.Hour >= 11)
+            if (ViewBag.Encerrada)
             {
-                today = today.AddDays(1);
+                <div class="alert alert-danger">
+                    <strong>Votação encerrada!</strong> Esta votação está encerrada, verifique se a data do seu computador está correta.
+                </div>
             }
+            else
+            {
+                string dataVotacao;
 
-            dataVotacao = today.ToString("dd/MM/yyyy");
-        }
-
-        <h4 class="subTitulo">Votação aberta para data de @dataVotacao</h4> 
-
-         <div class="btn-group">
-            <button type="button" class="btn btn-info">Selecione um colaborador</button>
-            <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <span class="caret"></span>
-                <span class="sr-only">Toggle Dropdown</span>
-            </button>
-            <ul class="dropdown-menu">
-                @{VotacaoAlmoco.Models.Colaboradores.ColaboradorManager colaboradores = new VotacaoAlmoco.Models.Colaboradores.ColaboradorManager();}
-                @foreach (var colaborador in colaboradores.GetAll())
+                DateTime today = DateTime.Now;
+                if (today.Hour >= 11)
                 {
-                    <li><a id="@colaborador.ID" href="#">@colaborador.Nome</a></li>
+                    today = today.AddDays(1);
                 }
-            </ul>
-        </div>
-    </div>
-    
-    <div class="modal fade" id="myModal" role="dialog">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal">&times;</button>
-          <h4 class="modal-title">Confirmação de voto</h4>
-        </div>
-        <div class="modal-body"></div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-success" onclick="ComputaVoto()">Computador voto</button>
-            <button type="button" class="btn btn-danger" data-dismiss="modal">Voltar a votação</button>
-        </div>
-      </div>
-    </div>
-  </div>
 
-    <div class="restauranteContainer">
-
-        @{
-            VotacaoAlmoco.Models.Restaurantes.RestauranteManager restaurantes = new VotacaoAlmoco.Models.Restaurantes.RestauranteManager();
+                dataVotacao = today.ToString("dd/MM/yyyy");
+                
+                <h3 class="subTitulo">Restaurantes candidatos</h3>
+                <h4 class="subTitulo">Votação aberta para o dia @dataVotacao</h4>
+                
+                <!-- Div que contem as informacoes de titulo-->
+                <div>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-info">Selecione um colaborador</button>
+                        <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <span class="caret"></span>
+                            <span class="sr-only">Toggle Dropdown</span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            @{
+                                VotacaoAlmoco.Models.Colaboradores.ColaboradorManager colaboradores = new VotacaoAlmoco.Models.Colaboradores.ColaboradorManager();
+                                foreach (var colaborador in colaboradores.GetAll())
+                                {
+                                        <li><a id="@colaborador.ID" href="#">@colaborador.Nome</a></li>
+                                } 
+                             }  
+                        </ul>
+                    </div>
+                </div>
+                <!-- Fim da div que contem as informacoes de titulo-->
+            
+                <!-- Modal que confirma voto -->
+                <div class="modal fade" id="myModal" role="dialog">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                <h4 class="modal-title">Confirmação de voto</h4>
+                            </div>
+                            <div class="modal-body"></div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-success" onclick="ComputaVoto()">Enviar voto</button>
+                                <button type="button" class="btn btn-danger" data-dismiss="modal">Voltar a votação</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Fim do modal que confirma voto -->
+                
+                <!-- Lista de restaurantes -->
+                <div class="restauranteContainer">
+                    @{
+                                    VotacaoAlmoco.Models.Restaurantes.RestauranteManager restaurantesManager = new VotacaoAlmoco.Models.Restaurantes.RestauranteManager();
+                                    foreach (var restaurante in restaurantesManager.GetRestaurantesCandidatos())
+                                    {
+                                        <div id="@restaurante.ID" class="restauranteItemVotacao" data-toggle="modal" data-target="#myModal" data-value="@restaurante.Nome">
+                                <div>
+                                    <i class="fa fa-info-circle"></i>
+                                    <span class="sub">Nome:</span>
+                                    <span class="conteudo">@restaurante.Nome</span>
+                                </div >
+                                <div>
+                                    <i class="fa fa-comment"></i>
+                                    <span class="sub">Descrição:</span>
+                                    <span class="conteudo">@restaurante.Descricao</span>
+                                </div>
+                                <div>
+                                    <i class="fa fa-map-marker"></i>
+                                    <span class="sub">Endereço:</span>
+                                    <span class="conteudo">@restaurante.Endereco</span>
+                                </div>
+                                <div>
+                                    <i class="fa fa-money"></i>
+                                    <span class="sub">Valor aproximado (R$):</span>
+                                    <span class="conteudo">@restaurante.ValorAproximado</span>
+                                </div>
+                            </div>
+                                    } 
+                    }          
+                </div>
+                <!-- Fim da lista de restaurantes -->
+            }
          }
-        @foreach (var restaurante in restaurantes.GetRestaurantesCandidatos())
-        {
-            <div id="@restaurante.ID" class="restauranteItemVotacao" data-toggle="modal" data-target="#myModal" data-value="@restaurante.Nome">
-                <div>
-                    <i class="fa fa-info-circle"></i>
-                    <span class="sub">Nome:</span>
-                    <span class="conteudo">@restaurante.Nome</span>
-                </div >
-                <div>
-                    <i class="fa fa-comment"></i>
-                    <span class="sub">Descrição:</span>
-                    <span class="conteudo">@restaurante.Descricao</span>
-                </div>
-                <div>
-                    <i class="fa fa-map-marker"></i>
-                    <span class="sub">Endereço:</span>
-                    <span class="conteudo">@restaurante.Endereco</span>
-                </div>
-                <div>
-                    <i class="fa fa-money"></i>
-                    <span class="sub">Valor aproximado (R$):</span>
-                    <span class="conteudo">@restaurante.ValorAproximado</span>
-                </div>
-            </div>
-        }           
-    </div>
 </div>
