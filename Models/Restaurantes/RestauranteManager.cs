@@ -8,7 +8,7 @@ namespace VotacaoAlmoco.Models.Restaurantes
 {
     public class RestauranteManager
     {
-        private static List<Restaurante> _restaurantes = new List<Restaurante>
+        private readonly List<Restaurante> _restaurantes = new List<Restaurante>
         {
             new Restaurante {
                 ID = 1, 
@@ -124,32 +124,32 @@ namespace VotacaoAlmoco.Models.Restaurantes
             List<Restaurante> restaurantesCampeoes = new List<Restaurante>();
 
             //Carrega a lista com os restaurantes campeoes, verificando se existe resultado
-            if (listaResultadoDay1 != null)
+            if (listaResultadoDay1.Count > 0)
             {
                 restaurantesCampeoes.Add(listaResultadoDay1.First().Restaurante);
             }
 
-            if (listaResultadoDay2 != null)
+            if (listaResultadoDay2.Count > 0)
             {
                 restaurantesCampeoes.Add(listaResultadoDay2.First().Restaurante);
             }
 
-            if (listaResultadoDay3 != null)
+            if (listaResultadoDay3.Count > 0)
             {
                 restaurantesCampeoes.Add(listaResultadoDay3.First().Restaurante);
             }
 
-            if (listaResultadoDay4 != null)
+            if (listaResultadoDay4.Count > 0)
             {
                 restaurantesCampeoes.Add(listaResultadoDay4.First().Restaurante);
             }
 
-            if (listaResultadoDay5 != null)
+            if (listaResultadoDay5.Count > 0)
             {
                 restaurantesCampeoes.Add(listaResultadoDay5.First().Restaurante);
             }
 
-            if (listaResultadoDay6 != null)
+            if (listaResultadoDay6.Count > 0)
             {
                 restaurantesCampeoes.Add(listaResultadoDay6.First().Restaurante);
             }
@@ -163,7 +163,7 @@ namespace VotacaoAlmoco.Models.Restaurantes
         {
             //Carrega lista com todos os restaurantes
             List<Restaurante> listaAllRestaurante = new List<Restaurante>();
-            listaAllRestaurante = this.GetAll();
+            listaAllRestaurante = _restaurantes;
 
             //Cria lista dos restaurantes que ja venceram na semana
             List<Restaurante> listaRestaurantesCampeoesSemana = new List<Restaurante>();
@@ -172,7 +172,7 @@ namespace VotacaoAlmoco.Models.Restaurantes
             //Remove da lista os restaurantes ganhadores da semana
             for (int i = 0; i < listaRestaurantesCampeoesSemana.Count(); i++)
             {
-                listaAllRestaurante.Remove(listaRestaurantesCampeoesSemana[i]);
+               listaAllRestaurante.RemoveAll(r => r.ID == listaRestaurantesCampeoesSemana[i].ID);
             }
 
             //Retorna lista com os restaurantes que ainda nao ganharam na semana

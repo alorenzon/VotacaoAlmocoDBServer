@@ -36,17 +36,19 @@ namespace VotacaoAlmoco.Models.Votacao
         //Verifica se votacao esta aberta
         public bool VotacaoAberta()
         {
+
+            bool retorno;
+
             //Cria os objetos de resultado
             Resultado resultado = new Resultado();
             List<Resultado> listaResultado = new List<Resultado>();
 
             //Verifico se nao tem votacao apos a data atual, caso o usuario altere o horario do SO
             DateTime dataPosterior = DataVotacao().AddDays(1);
-            listaResultado = resultado.LerResultado(dataPosterior);
 
-            if (listaResultado != null)
+            if (resultado.LerResultado(dataPosterior).Count < 1)
             {
-                return false;
+                retorno = true;
             }
 
             //Carrega lista de resultados
@@ -55,7 +57,7 @@ namespace VotacaoAlmoco.Models.Votacao
             int totalVotos = 0;
 
             //Faz contagem total dos votos
-            if (listaResultado != null)
+            if (listaResultado.Count > 0)
             {
                 for (int i = 0; i < listaResultado.Count(); i++)
                 {
@@ -84,18 +86,20 @@ namespace VotacaoAlmoco.Models.Votacao
                 //Caso a diferenca seja superior a quantidade de votos restantes, encerra votacao
                 if (difVotos > votosRestantes)
                 {
-                    return false;
+                    retorno = false;
                 }
                 else
                 {
-                    return true;
+                    retorno = true;
                 }
 
             }
             else
             {
-                return true;
+                retorno = true;
             }
+
+            return retorno;
         }
         
         //

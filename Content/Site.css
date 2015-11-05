@@ -1,5 +1,5 @@
 ﻿html {
-    background-color: #e2e2e2;
+    background-color: #fff;
     margin: 0;
     padding: 0;
 }
@@ -86,9 +86,34 @@ a {
     cursor: pointer;
 }
 
-.menu_colaboradores {
-
+.resultado-votacao {
+    width: 80%;
+    margin-top: 15px;
+    margin-left: 20px;
+    border-top: 2px solid #e2e2e2;
 }
+
+.resultado-votacao-item {
+    padding-top: 5px;
+}
+
+.cabecalho-resultado {
+    margin-left: 20px;
+    width: 80%;
+}
+
+.data-resultado {
+    margin-left: 20px;
+    margin-top: 30px;
+    color: #333;
+    display: inline-block;
+    display: -moz-inline-box;
+    width: 80%;
+}
+
+    .data-resultado h4 {
+        margin-left: 10px;
+    }
 
 header {
     background-color: #fff;

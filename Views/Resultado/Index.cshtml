@@ -1,0 +1,116 @@
+﻿@{
+    ViewBag.Title = "Resultados";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+    <link href="~/Content/themes/base/jquery-ui.css" rel="stylesheet" />    
+    <script src="~/Scripts/jquery-1.9.1.js"></script>
+    <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+    <link href="~/Content/bootstrap.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+
+    <script>
+        var j = jQuery.noConflict();
+        
+        j(function () {
+
+            j("#datepicker").datepicker({
+                dateFormat: 'dd/mm/yy',
+                dayNames: ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'],
+                dayNamesMin: ['D', 'S', 'T', 'Q', 'Q', 'S', 'S', 'D'],
+                dayNamesShort: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'],
+                monthNames: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'],
+                monthNamesShort: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+                nextText: 'Próximo',
+                prevText: 'Anterior'
+            });
+            j("#datepicker").datepicker();
+        });
+
+        j(document).on("click", ".btn", function () {
+            var html = "<i class=\"fa fa-bar-chart fa-3x\"></i><h4>Resultado da votação do dia " + j("#datepicker").val() + "</h5>";
+            j(".data-resultado").html(html);
+            ExibeResultado();
+        });
+
+        //Busca resultado da votacao
+        function ExibeResultado() {
+
+            var dataVotacao = j("#datepicker").val();
+            var totalVotos = 0;
+
+            if (typeof (dataVotacao) === typeof(undefined)) {
+                dataVotacao = Date.now.toString("dd/MM/aaaa");
+            }
+
+            j.when(GetResultado(dataVotacao)).done(
+                function (data) {
+                    var html = "";
+
+                    if (typeof (data['mensagem1']) === typeof(undefined)) {
+                        j.each(data, function (i, item) {
+                            totalVotos += item.QuantidadeVotos;
+                        })
+
+                        j.each(data, function (i, item) {
+                            var percentual = (100 * item.QuantidadeVotos / totalVotos);
+                            html = html + "<div class=\"resultado-votacao-item\">" +
+                                          "<h5>" + item.Restaurante.Nome + "</h5>"+
+                                        "<div class=\"progress\">" +
+                                            "<div class=\"progress-bar progress-bar-success\" role=\"progressbar\" aria-valuenow=\"" + item.QuantidadeVotos + "\" aria-valuemin=\"0\" aria-valuemax=\"10\" style=\"width:" + percentual + "%;\">" +
+                                                    item.QuantidadeVotos + " voto(s)" +
+                                            "</div>" +
+                                        "</div>"+
+                                    "</div>";
+                        })
+                        j(".resultado-votacao").html(html);
+                    }
+                    else {
+                        html = "<div class=\"alert alert-danger\">" +
+                                    "<strong>" + data['mensagem1'] + "</strong>" + " " + data['mensagem2'] +
+                                "</div>";
+                        j(".resultado-votacao").html(html);
+                    }
+
+                    j(".resultado-votacao").append("<h3>Total de votos: " + totalVotos + "</h3>");
+                });
+        }
+
+        function GetResultado(dataVotacao) {
+            return  j.ajax({
+                        url: "/resultado/buscaresultado/",
+                        data: { dataVotacao: dataVotacao },
+                        type: "get",
+                        dataType: "json",
+                        error: function () {
+                            console.log(Error());
+                        },
+                        success: function (data) { return data }
+                    });
+        }
+
+    </script>
+
+    <h2>Resultado das votações</h2>
+    <div class="cabecalho-resultado">    
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="input-group">
+                    <input type="text" class="form-control" name="dataVotacao" id="datepicker" placeholder="Insira a data da votação">
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" type="button">Exibir resultado</button>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="data-resultado">
+        
+    </div>
+
+    <div class="resultado-votacao">
+        
+    </div>

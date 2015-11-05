@@ -26,16 +26,17 @@ namespace VotacaoAlmoco.Models.Resultados
             {
                 //Instancia e pesquisa os resultados da votacao
                 List<Resultado> listaResultado = new List<Resultado>();
+                List<Resultado> listaResultadoOrdenado = new List<Resultado>();
                 listaResultado = DB.BuscaResultado(dataVotacao);
 
                 //Ordena a lista para deixar o campeao em primeiro lugar
                 if (listaResultado != null)
                 {
-                    listaResultado = listaResultado.OrderBy(r => r.QuantidadeVotos).ToList();    
+                    listaResultadoOrdenado = listaResultado.OrderByDescending(r => r.QuantidadeVotos).ToList();    
                 }
                 
                 //Retorna lista ordenada
-                return listaResultado;
+                return listaResultadoOrdenado;
                                 
             }
             else

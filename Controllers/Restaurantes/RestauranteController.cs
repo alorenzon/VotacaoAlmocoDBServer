@@ -14,7 +14,7 @@ namespace VotacaoAlmoco.Models.Restaurantes
 
         public ActionResult Index()
         {
-            return View();
+            return View(new Restaurante());
         }
 
     }

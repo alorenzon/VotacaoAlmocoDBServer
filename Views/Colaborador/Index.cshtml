@@ -17,13 +17,17 @@
             </tr>
             </thead>
             <tbody>
-                @foreach (var colaborador in VotacaoAlmoco.Models.Colaboradores.ColaboradoresManager.GetAll())
-                {
-                    <tr>
-                        <td>@colaborador.ID</td>
-                        <td>@colaborador.Nome</td>
-                    </tr>    
-                }            
+                @{
+                    VotacaoAlmoco.Models.Colaboradores.ColaboradorManager colaboradorManager = new VotacaoAlmoco.Models.Colaboradores.ColaboradorManager();
+                    foreach (var colaborador in colaboradorManager.GetAll())
+                    {
+                        <tr>
+                            <td>@colaborador.ID</td>
+                            <td>@colaborador.Nome</td>
+                        </tr>    
+                    }   
+                    
+                 }            
             </tbody>
     </table>
 </div>

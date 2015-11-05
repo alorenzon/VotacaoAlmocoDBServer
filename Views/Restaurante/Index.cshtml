@@ -17,31 +17,31 @@
         
         @{
             VotacaoAlmoco.Models.Restaurantes.RestauranteManager restaurantes = new VotacaoAlmoco.Models.Restaurantes.RestauranteManager();
-         }
-        @foreach (var restaurante in restaurantes.GetAll())
-        {
-            <div class="restauranteItem">
-                <div>
-                    <i class="fa fa-info-circle"></i>
-                    <span class="sub">Nome:</span>
-                    <span class="conteudo">@restaurante.Nome</span>
-                </div >
-                <div>
-                    <i class="fa fa-comment"></i>
-                    <span class="sub">Descrição:</span>
-                    <span class="conteudo">@restaurante.Descricao</span>
+            foreach (var restaurante in restaurantes.GetAll())
+            {
+                <div class="restauranteItem">
+                    <div>
+                        <i class="fa fa-info-circle"></i>
+                        <span class="sub">Nome:</span>
+                        <span class="conteudo">@restaurante.Nome</span>
+                    </div >
+                    <div>
+                        <i class="fa fa-comment"></i>
+                        <span class="sub">Descrição:</span>
+                        <span class="conteudo">@restaurante.Descricao</span>
+                    </div>
+                    <div>
+                        <i class="fa fa-map-marker"></i>
+                        <span class="sub">Endereço:</span>
+                        <span class="conteudo">@restaurante.Endereco</span>
+                    </div>
+                    <div>
+                        <i class="fa fa-money"></i>
+                        <span class="sub">Valor aproximado (R$):</span>
+                        <span class="conteudo">@restaurante.ValorAproximado</span>
+                    </div>
                 </div>
-                <div>
-                    <i class="fa fa-map-marker"></i>
-                    <span class="sub">Endereço:</span>
-                    <span class="conteudo">@restaurante.Endereco</span>
-                </div>
-                <div>
-                    <i class="fa fa-money"></i>
-                    <span class="sub">Valor aproximado (R$):</span>
-                    <span class="conteudo">@restaurante.ValorAproximado</span>
-                </div>
-            </div>
-        }            
+            }
+         }  
     </div>
 </div>

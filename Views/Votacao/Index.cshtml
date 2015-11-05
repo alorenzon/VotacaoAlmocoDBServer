@@ -16,6 +16,10 @@
         var idColaborador;
 
         $(document).on("click", ".restauranteItemVotacao", function () {
+            if ($(".btn-info:first-child").val() == "") {
+                alert("Antes de votar selecione um colaborador!");
+            }
+
             nomeRestaurante = $(this).data('value');
             idRestaurante = $(this).attr('id');
 
@@ -29,13 +33,11 @@
                 $(".btn-info:first-child").val($(this).attr('id'));
                 idColaborador = $(".btn-info:first-child").val();
                 ColaboradorPodeVotar(idColaborador);
-                
             });
         });
 
         //Salva o voto do colaborador
         function ComputaVoto() {
-
             idColaborador = $(".btn-info:first-child").val();
 
             $.when(ColaboradorPodeVotar(idColaborador)).done(
